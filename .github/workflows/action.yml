@@ -1,0 +1,35 @@
+name: SFML 2.5.1 Compilation
+
+on:
+  push:
+    branches: [ $default-branch ]
+  pull_request:
+    branches: [ $default-branch ]
+
+jobs:
+  Setup-SFML:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: jwlawson/actions-setup-cmake@v1.9
+
+    - name: Install prerequirements
+      run: >
+           sudo apt update && sudo apt upgrade --assume-yes &&
+           sudo apt install --assume-yes libfreetype6-dev libx11-dev xorg-dev
+           freeglut3-dev x11-utils x11-xserver-utils libudev-dev libopengl-dev
+           libflac-dev libogg-dev libvorbis-dev libvorbisenc2 libvorbisfile3
+           libopenal-dev libpthread-stubs0-dev
+    - name: wget
+      uses: wei/wget@v1
+      with:
+        args: -O SFML.zip https://github.com/SFML/SFML/archive/refs/tags/2.5.1.zip
+    - name: Extract sources
+      run: unzip SFML.zip
+    - name: Compile
+      run: >
+           mkdir build && mkdir install &&
+           cd build &&
+           cmake CMAKE_INSTALL_PREFIX=../install ../SFML-* &&
+           make -j32
+           make install
